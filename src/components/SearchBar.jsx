@@ -22,7 +22,11 @@ export default function SearchBar({
     }
   };
 
-  const handleClear = () => setQuery('');
+  const handleClear = () => {
+    setQuery('');
+    // focus the input after clearing for convenience
+    inputRef.current?.focus();
+  };
 
   return (
     <form onSubmit={handleSubmit} className="relative max-w-2xl w-full mx-auto">
@@ -35,15 +39,15 @@ export default function SearchBar({
           placeholder={placeholder}
           aria-label="Search books"
           aria-invalid={Boolean(error)}
-          className="w-full pl-12 pr-24 py-4 text-base bg-white border border-stone-300 rounded-xl shadow-sm text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-accent transition-all"
+          className="w-full pl-12 pr-32 py-4 text-base bg-white border border-stone-300 rounded-xl shadow-sm text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-accent transition-all"
         />
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-stone-400" />
 
         {query && (
           <button
             type="button"
-            onClick={handleClear}
-            className="absolute right-20 text-stone-400 hover:text-stone-600 p-1"
+              onClick={handleClear}
+              className="absolute right-28 text-stone-400 hover:text-stone-600 p-1"
             aria-label="Clear search input"
           >
             <X className="w-4 h-4" />
@@ -52,7 +56,7 @@ export default function SearchBar({
 
         <button
           type="submit"
-          className="absolute right-2 top-1/2 -translate-y-1/2 px-5 py-2.5 bg-brand-800 hover:bg-stone-900 text-white font-medium text-sm rounded-lg transition-colors shadow-sm"
+          className="absolute right-2 top-1/2 -translate-y-1/2 px-5 py-2.5 bg-brand-800 hover:bg-stone-900 text-white font-medium text-sm rounded-lg transition-colors shadow-sm z-10"
         >
           Search
         </button>
