@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Search, X } from 'lucide-react';
 
 export default function SearchBar({
@@ -7,10 +7,19 @@ export default function SearchBar({
   placeholder = 'Search by title, author or keyword...'
 }) {
   const [query, setQuery] = useState(initialQuery);
+  const [error, setError] = useState('');
+  const inputRef = useRef(null);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (query.trim()) onSearch(query.trim());
+    if (query.trim()) {
+      setError('');
+      onSearch(query.trim());
+    } else {
+      setError('Please enter a search term.');
+      // focus the input for convenience
+      inputRef.current?.focus();
+    }
   };
 
   const handleClear = () => setQuery('');
@@ -19,11 +28,13 @@ export default function SearchBar({
     <form onSubmit={handleSubmit} className="relative max-w-2xl w-full mx-auto">
       <div className="relative flex items-center">
         <input
+          ref={inputRef}
           type="text"
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => { setQuery(e.target.value); if (error) setError(''); }}
           placeholder={placeholder}
           aria-label="Search books"
+          aria-invalid={Boolean(error)}
           className="w-full pl-12 pr-24 py-4 text-base bg-white border border-stone-300 rounded-xl shadow-sm text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-accent transition-all"
         />
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-stone-400" />
@@ -46,6 +57,11 @@ export default function SearchBar({
           Search
         </button>
       </div>
+      {error && (
+        <div className="mt-2 text-xs text-rose-600" role="alert" aria-live="assertive">
+          {error}
+        </div>
+      )}
     </form>
   );
 }
