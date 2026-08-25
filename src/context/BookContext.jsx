@@ -1,92 +1,194 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useAuth } from './AuthContext';
 
 const BookContext = createContext();
 
 export function BookProvider({ children }) {
-  // Saved books list where each entry holds { ...book, status, personalRating }
   const [savedBooks, setSavedBooks] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  
+  // Retrieve token and API URL from AuthContext
+  const { token, API_URL } = useAuth();
 
-  // Check if book exists in saved list
-  const isBookSaved = (id) => savedBooks.some((book) => book.id === id);
+  // 1. FETCH BOOKS FROM BACKEND ON RELOAD
+  const fetchBooks = async () => {
+    const activeToken = token || localStorage.getItem('token');
+    
+    if (!activeToken) {
+      setSavedBooks([]);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_URL}/api/books`, {
+        headers: {
+          'Authorization': `Bearer ${activeToken}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to load saved books');
+      }
+
+      const data = await response.json();
+      
+      // Normalize API response fields to match UI expectations
+      const formattedBooks = (data.books || []).map((b) => ({
+        id: b.id,
+        openlibrary_id: b.openlibrary_id,
+        title: b.title,
+        authors: b.author ? [b.author] : [],
+        coverImage: b.cover_url,
+        status: b.status,
+        personalRating: b.rating
+      }));
+
+      setSavedBooks(formattedBooks);
+      setError(null);
+    } catch (err) {
+      console.error('Error fetching books:', err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Re-fetch books whenever token state updates or page refreshes
+  useEffect(() => {
+    fetchBooks();
+  }, [token]);
+
+  // Check if book exists in saved list by ID or OpenLibrary ID
+  const isBookSaved = (id) => savedBooks.some((book) => book.id === id || book.openlibrary_id === id);
 
   // Get a specific saved book
-  const getSavedBook = (id) => savedBooks.find((book) => book.id === id);
+  const getSavedBook = (id) => savedBooks.find((book) => book.id === id || book.openlibrary_id === id);
 
-  // Add book or update existing book status / rating
-  const addBook = (book, status = 'want-to-read', personalRating = null) => {
-    setSavedBooks((prev) => {
-      const existing = prev.find((item) => item.id === book.id);
-      if (existing) {
-        return prev.map((item) =>
-          item.id === book.id
-            ? {
-                ...item,
-                status,
-                // Preserve existing rating if changing to read without specifying a new rating
-                personalRating:
-                  personalRating !== undefined ? personalRating : item.personalRating ?? null
-              }
-            : item
-        );
-      }
-      return [
-        ...prev,
-        {
-          id: book.id,
+  // 2. ADD BOOK TO BACKEND DATABASE
+  const addBook = async (book, status = 'want_to_read', personalRating = null) => {
+    const activeToken = token || localStorage.getItem('token');
+    if (!activeToken) return;
+
+    try {
+      const response = await fetch(`${API_URL}/api/books`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${activeToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          openlibrary_id: String(book.id || book.openlibrary_id),
           title: book.title,
-          authors: Array.isArray(book.authors) ? book.authors : [book.authors].filter(Boolean),
-          coverImage: book.coverImage || null,
-          rating: book.rating || null, // API/Community rating
-          publishedDate: book.publishedDate || 'N/A',
-          publisher: book.publisher || 'N/A',
-          description: book.description || '',
-          categories: book.categories || [],
+          author: Array.isArray(book.authors) ? book.authors[0] : (book.author || 'Unknown Author'),
+          cover_url: book.coverImage || book.cover_url || null,
           status,
-          personalRating: status === 'read' ? personalRating : null
-        }
-      ];
-    });
+          rating: personalRating
+        })
+      });
+
+      if (!response.ok) throw new Error('Failed to save book');
+
+      // Re-fetch books from backend to update state with actual Database ID
+      await fetchBooks();
+    } catch (err) {
+      console.error('Error adding book:', err);
+      setError(err.message);
+    }
   };
 
-  // Update status (Preserves rating in state!)
-  const updateBookStatus = (id, newStatus) => {
+  // 3. UPDATE STATUS IN BACKEND DATABASE
+  const updateBookStatus = async (id, newStatus) => {
+    const activeToken = token || localStorage.getItem('token');
+    const targetBook = savedBooks.find((b) => b.id === id || b.openlibrary_id === id);
+    if (!activeToken || !targetBook) return;
+
+    // Optimistic UI update
     setSavedBooks((prev) =>
-      prev.map((book) => {
-        if (book.id === id) {
-          return {
-            ...book,
-            status: newStatus
-          };
-        }
-        return book;
-      })
+      prev.map((book) => (book.id === targetBook.id ? { ...book, status: newStatus } : book))
     );
+
+    try {
+      const response = await fetch(`${API_URL}/api/books/${targetBook.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${activeToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ status: newStatus })
+      });
+
+      if (!response.ok) throw new Error('Failed to update status');
+    } catch (err) {
+      console.error('Error updating status:', err);
+      // Revert state on failure
+      fetchBooks();
+    }
   };
 
-  // Update or clear rating
-  const updatePersonalRating = (id, rating) => {
+  // 4. UPDATE RATING IN BACKEND DATABASE
+  const updatePersonalRating = async (id, rating) => {
+    const activeToken = token || localStorage.getItem('token');
+    const targetBook = savedBooks.find((b) => b.id === id || b.openlibrary_id === id);
+    if (!activeToken || !targetBook) return;
+
+    // Optimistic UI update
     setSavedBooks((prev) =>
-      prev.map((book) => {
-        if (book.id === id) {
-          return {
-            ...book,
-            personalRating: rating // 1-5 or null to reset
-          };
-        }
-        return book;
-      })
+      prev.map((book) => (book.id === targetBook.id ? { ...book, personalRating: rating } : book))
     );
+
+    try {
+      const response = await fetch(`${API_URL}/api/books/${targetBook.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${activeToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ rating })
+      });
+
+      if (!response.ok) throw new Error('Failed to update rating');
+    } catch (err) {
+      console.error('Error updating rating:', err);
+      // Revert state on failure
+      fetchBooks();
+    }
   };
 
-  // Remove book from reading list entirely
-  const removeBook = (id) => {
-    setSavedBooks((prev) => prev.filter((book) => book.id !== id));
+  // 5. REMOVE BOOK FROM BACKEND DATABASE
+  const removeBook = async (id) => {
+    const activeToken = token || localStorage.getItem('token');
+    const targetBook = savedBooks.find((b) => b.id === id || b.openlibrary_id === id);
+    if (!activeToken || !targetBook) return;
+
+    // Optimistic UI update
+    setSavedBooks((prev) => prev.filter((book) => book.id !== targetBook.id));
+
+    try {
+      const response = await fetch(`${API_URL}/api/books/${targetBook.id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${activeToken}`
+        }
+      });
+
+      if (!response.ok) throw new Error('Failed to delete book');
+    } catch (err) {
+      console.error('Error removing book:', err);
+      // Revert state on failure
+      fetchBooks();
+    }
   };
 
   return (
     <BookContext.Provider
       value={{
         savedBooks,
+        loading,
+        error,
+        fetchBooks,
         isBookSaved,
         getSavedBook,
         addBook,
@@ -100,4 +202,10 @@ export function BookProvider({ children }) {
   );
 }
 
-export const useBookContext = () => useContext(BookContext);
+export const useBookContext = () => {
+  const context = useContext(BookContext);
+  if (!context) {
+    throw new Error('useBookContext must be used within a BookProvider');
+  }
+  return context;
+};
