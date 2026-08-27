@@ -13,6 +13,7 @@ export default function Discover() {
   const [error, setError] = useState(null);
   const [hasMore, setHasMore] = useState(true);
   const [activeCategory, setActiveCategory] = useState('fiction');
+  const [pointer, setPointer] = useState({ x: 50, y: 50 });
   const controllerRef = React.useRef(null);
 
   const PAGE_SIZE = 10;
@@ -115,21 +116,63 @@ export default function Discover() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 bg-[#d5c9b7]/90">
-      <div className="mb-8">
-        <h1 className="font-serif text-3xl sm:text-4xl font-bold text-stone-900 mb-2">
-          Discover Books
-        </h1>
-        <p className="text-stone-600 text-sm sm:text-base">
-          Explore trending titles and popular reads across Open Library.
-        </p>
+    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <section
+        className="hero-shell relative mb-8 overflow-hidden rounded-[2.2rem] border border-[#d4b79b] p-6 sm:p-8 lg:p-10"
+        onMouseMove={(event) => {
+          const rect = event.currentTarget.getBoundingClientRect();
+          const x = ((event.clientX - rect.left) / rect.width) * 100;
+          const y = ((event.clientY - rect.top) / rect.height) * 100;
+          setPointer({ x, y });
+        }}
+        onMouseLeave={() => setPointer({ x: 50, y: 50 })}
+      >
+        <div
+          className="pointer-events-none absolute inset-0 opacity-100"
+          style={{
+            background: `radial-gradient(circle at ${pointer.x}% ${pointer.y}%, rgba(148, 82, 53, 0.22), rgba(148, 82, 53, 0.08) 18%, transparent 48%)`
+          }}
+        />
+        <div className="ambient-orb ambient-orb-one" />
+        <div className="ambient-orb ambient-orb-two" />
+
+        <div className="relative flex min-h-[260px] items-center">
+          <div className="max-w-2xl">
+            <h1 className="text-4xl font-bold leading-[0.9] text-[#2a201c] sm:text-5xl lg:text-6xl">
+              Find your <span className="gradient-text">next favorite</span> book.
+            </h1>
+
+            <p className="mt-4 max-w-xl text-sm leading-7 text-stone-700 sm:text-base">
+              Discover books that match your mood, your shelves and the kind of reading life you want to keep building.
+            </p>
+
+            <div className="mt-6 flex flex-wrap items-center gap-3 text-xs font-medium text-stone-600">
+              <span className="rounded-full border border-[#caa887] bg-[#f9f2eb]/80 px-2.5 py-1.5">Browse picks</span>
+              <span className="rounded-full border border-[#caa887] bg-[#f9f2eb]/80 px-2.5 py-1.5">Top rated</span>
+            </div>
+
+            <div className="mt-8 flex flex-wrap gap-3 text-xs font-medium text-stone-600">
+              <span className="rounded-full border border-[#caa887] bg-[#f9f2eb]/80 px-2.5 py-1.5">Literary fiction</span>
+              <span className="rounded-full border border-[#caa887] bg-[#f9f2eb]/80 px-2.5 py-1.5">Classic romance</span>
+              <span className="rounded-full border border-[#caa887] bg-[#f9f2eb]/80 px-2.5 py-1.5">Mystery picks</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div className="mb-6">
+        <CategoryFilter activeCategory={activeCategory} onSelectCategory={handleSelectCategory} />
       </div>
 
-      <CategoryFilter activeCategory={activeCategory} onSelectCategory={handleSelectCategory} />
-
+      <div className="mb-6 flex items-center justify-between gap-3">
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#7b665b]">Trending now</p>
+          <h2 className="font-serif text-3xl font-bold text-[#2c221e]">Fresh on the shelf</h2>
+        </div>
+      </div>
 
       {/* Book Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 gap-6">
+      <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5">
         {books.map((book) => (
           <BookCard key={book.id} book={book} />
         ))}
@@ -141,11 +184,11 @@ export default function Discover() {
           <button
             onClick={handleLoadMore}
             disabled={loadingMore}
-            className="inline-flex items-center space-x-2 bg-stone-900 text-white hover:bg-stone-800 px-6 py-3 rounded-xl font-medium text-sm transition-all shadow-sm disabled:opacity-50"
+            className="glow-button inline-flex items-center space-x-2 rounded-xl bg-[#2c221e] px-6 py-3 text-sm font-medium text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 disabled:opacity-50"
           >
             {loadingMore ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <Loader2 className="h-4 w-4 animate-spin" />
                 <span>Loading more books...</span>
               </>
             ) : (

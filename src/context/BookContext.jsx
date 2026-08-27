@@ -3,6 +3,21 @@ import { useAuth } from './AuthContext';
 
 const BookContext = createContext();
 
+const normalizeStatus = (status) => {
+  switch (status) {
+    case 'want_to_read':
+    case 'want to read':
+      return 'want-to-read';
+    case 'currently_reading':
+    case 'reading':
+      return 'reading';
+    case 'read':
+      return 'read';
+    default:
+      return 'want-to-read';
+  }
+};
+
 export function BookProvider({ children }) {
   const [savedBooks, setSavedBooks] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -42,7 +57,7 @@ export function BookProvider({ children }) {
         title: b.title,
         authors: b.author ? [b.author] : [],
         coverImage: b.cover_url,
-        status: b.status,
+        status: normalizeStatus(b.status),
         personalRating: b.rating
       }));
 
@@ -68,9 +83,11 @@ export function BookProvider({ children }) {
   const getSavedBook = (id) => savedBooks.find((book) => book.id === id || book.openlibrary_id === id);
 
   // 2. ADD BOOK TO BACKEND DATABASE
-  const addBook = async (book, status = 'want_to_read', personalRating = null) => {
+  const addBook = async (book, status = 'want-to-read', personalRating = null) => {
     const activeToken = token || localStorage.getItem('token');
     if (!activeToken) return;
+
+    const normalizedStatus = normalizeStatus(status);
 
     try {
       const response = await fetch(`${API_URL}/api/books`, {
@@ -84,7 +101,7 @@ export function BookProvider({ children }) {
           title: book.title,
           author: Array.isArray(book.authors) ? book.authors[0] : (book.author || 'Unknown Author'),
           cover_url: book.coverImage || book.cover_url || null,
-          status,
+          status: normalizedStatus,
           rating: personalRating
         })
       });
@@ -186,6 +203,7 @@ export function BookProvider({ children }) {
     <BookContext.Provider
       value={{
         savedBooks,
+        savedCount: savedBooks.length,
         loading,
         error,
         fetchBooks,

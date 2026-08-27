@@ -15,89 +15,90 @@ export default function Navbar() {
   };
 
   const navLinkStyle = ({ isActive }) =>
-    `flex items-center space-x-2 text-sm font-medium transition-colors duration-150 ${
+    `flex items-center gap-2 rounded-full px-2.5 py-1.5 text-[0.92rem] sm:text-[1rem] font-semibold tracking-[0.04em] transition-all duration-150 ${
       isActive
-        ? 'text-brand-accent border-b-2 border-brand-accent pb-1'
-        : 'text-stone-600 hover:text-stone-900'
+        ? 'bg-white/25 text-brand-accent shadow-sm ring-1 ring-brand-accent/20'
+        : 'text-stone-700 hover:bg-white/20 hover:text-stone-900'
     }`;
 
   return (
-    <header className="sticky top-0 z-50 bg-[#857967]/90 backdrop-blur-md border-b border-stone-200/80">
-      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
-        {/* Logo */}
-        <Link to="/" className="flex items-center space-x-3 group">
-          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-brand-800 flex items-center justify-center text-stone-100 shadow-md group-hover:bg-brand-accent transition-colors">
-            <BookOpen className="w-4 h-4 sm:w-5 sm:h-5" />
-          </div>
-          <span className="font-serif text-lg sm:text-2xl font-bold tracking-tight text-brand-800">
-            Book<span className="text-brand-accent">Scout</span>
-          </span>
-        </Link>
-
-        {/* Navigation Links */}
-        <nav className="flex items-center space-x-4 sm:space-x-8 overflow-x-auto">
-          <NavLink to="/" end className={navLinkStyle}>
-            <Compass className="w-4 h-4" />
-            <span>Discover</span>
-          </NavLink>
-
-          <NavLink to="/search" className={navLinkStyle}>
-            <Search className="w-4 h-4" />
-            <span>Search</span>
-          </NavLink>
-
-          {user && (
-            <>
-              <NavLink to="/my-books" className={navLinkStyle}>
-                <div className="relative flex items-center space-x-2">
-                  <Bookmark className="w-4 h-4" />
-                  <span>My Books</span>
-                  {savedCount > 0 && (
-                    <span className="ml-1.5 px-2 py-0.5 text-xs font-bold rounded-full bg-brand-accent text-white shadow-sm">
-                      {savedCount}
-                    </span>
-                  )}
-                </div>
-              </NavLink>
-
-              <NavLink to="/ai-recommendations" className={navLinkStyle}>
-                <Sparkles className="w-4 h-4" />
-                <span>AI Recs</span>
-              </NavLink>
-            </>
-          )}
-        </nav>
-
-        {/* Auth Section */}
-        <div className="flex items-center space-x-4">
-          {user ? (
-            <div className="flex items-center space-x-4">
-              <span className="text-sm font-medium text-stone-700">
-                Welcome, <span className="text-brand-800 font-semibold">{user.username}</span>
+    <header className="sticky top-0 z-50 border-b border-stone-200/80 bg-[#857967]/90 backdrop-blur-md">
+      <div className="mx-auto max-w-7xl px-3 py-3 sm:px-4 lg:px-8">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex items-center justify-between gap-3">
+            <Link to="/" className="group flex items-center gap-3">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-800 text-stone-100 shadow-md transition-colors group-hover:bg-brand-accent sm:h-10 sm:w-10">
+                <BookOpen className="h-4 w-4 sm:h-5 sm:w-5" />
+              </div>
+              <span className="font-serif text-[1.45rem] font-bold tracking-tight text-brand-800 sm:text-[2rem]">
+                Book<span className="text-brand-accent">Scout</span>
               </span>
-              <button
-                onClick={handleLogout}
-                className="px-4 py-2 text-sm font-medium text-stone-700 hover:text-stone-900 hover:bg-stone-100 rounded-lg transition-colors duration-150"
-              >
-                Logout
-              </button>
-            </div>
-          ) : (
-            <div className="flex items-center space-x-3">
-              <Link
-                to="/login"
-                className="px-4 py-2 text-sm font-medium text-stone-700 hover:text-stone-900 hover:bg-stone-100 rounded-lg transition-colors duration-150"
-              >
-                Login
-              </Link>
-              <Link
-                to="/signup"
-                className="px-4 py-2 text-sm font-medium text-white bg-brand-accent hover:bg-brand-600 rounded-lg transition-colors duration-150 shadow-sm"
-              >
-                Sign Up
-              </Link>
-            </div>
-          )}
+            </Link>
+          </div>
+
+          <nav className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 lg:justify-center">
+            <NavLink to="/" end className={navLinkStyle}>
+              <Compass className="h-4 w-4" />
+              <span>Discover</span>
+            </NavLink>
+
+            <NavLink to="/search" className={navLinkStyle}>
+              <Search className="h-4 w-4" />
+              <span>Search</span>
+            </NavLink>
+
+            {user && (
+              <>
+                <NavLink to="/my-books" className={navLinkStyle}>
+                  <div className="relative flex items-center gap-2">
+                    <Bookmark className="h-4 w-4" />
+                    <span>My Books</span>
+                    {savedCount > 0 && (
+                      <span className="ml-1 rounded-full bg-brand-accent px-2 py-0.5 text-[10px] font-bold text-white shadow-sm">
+                        {savedCount}
+                      </span>
+                    )}
+                  </div>
+                </NavLink>
+
+                <NavLink to="/ai-recommendations" className={navLinkStyle}>
+                  <Sparkles className="h-4 w-4" />
+                  <span>AI Recs</span>
+                </NavLink>
+              </>
+            )}
+          </nav>
+
+          <div className="flex items-center justify-center gap-2 sm:gap-3 lg:justify-end">
+            {user ? (
+              <>
+                <span className="font-serif text-[1rem] text-stone-700 sm:text-[1.2rem]">
+                  Welcome, <span className="font-semibold text-brand-800">{user.username}</span>
+                </span>
+                <button
+                  onClick={handleLogout}
+                  className="rounded-lg px-3 py-2 font-serif text-[0.98rem] text-stone-700 transition-colors hover:bg-stone-100 hover:text-stone-900 sm:text-[1.15rem]"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  to="/login"
+                  className="rounded-lg px-3 py-2 font-serif text-[0.98rem] text-stone-700 transition-colors hover:bg-stone-100 hover:text-stone-900 sm:text-[1.15rem]"
+                >
+                  Login
+                </Link>
+                <Link
+                  to="/signup"
+                  className="rounded-lg bg-brand-accent px-3 py-2 font-serif text-[0.98rem] text-white shadow-sm transition-colors hover:bg-brand-600 sm:text-[1.15rem]"
+                >
+                  Sign Up
+                </Link>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </header>
