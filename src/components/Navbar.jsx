@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { Bookmark, Compass, Search, BookOpen } from 'lucide-react';
+import { Bookmark, Compass, Search, BookOpen, Sparkles } from 'lucide-react';
 import { useBookContext } from '../context/BookContext';
 import { AuthContext } from '../context/AuthContext';
 
@@ -47,17 +47,24 @@ export default function Navbar() {
           </NavLink>
 
           {user && (
-            <NavLink to="/my-books" className={navLinkStyle}>
-              <div className="relative flex items-center space-x-2">
-                <Bookmark className="w-4 h-4" />
-                <span>My Books</span>
-                {savedCount > 0 && (
-                  <span className="ml-1.5 px-2 py-0.5 text-xs font-bold rounded-full bg-brand-accent text-white shadow-sm">
-                    {savedCount}
-                  </span>
-                )}
-              </div>
-            </NavLink>
+            <>
+              <NavLink to="/my-books" className={navLinkStyle}>
+                <div className="relative flex items-center space-x-2">
+                  <Bookmark className="w-4 h-4" />
+                  <span>My Books</span>
+                  {savedCount > 0 && (
+                    <span className="ml-1.5 px-2 py-0.5 text-xs font-bold rounded-full bg-brand-accent text-white shadow-sm">
+                      {savedCount}
+                    </span>
+                  )}
+                </div>
+              </NavLink>
+
+              <NavLink to="/ai-recommendations" className={navLinkStyle}>
+                <Sparkles className="w-4 h-4" />
+                <span>AI Recs</span>
+              </NavLink>
+            </>
           )}
         </nav>
 
