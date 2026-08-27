@@ -9,6 +9,7 @@ import BookDetails from './views/BookDetails';
 import MyBooks from './views/MyBooks';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import AIRecommendations from './pages/AIRecommendations';
 
 export default function App() {
   return (
@@ -23,6 +24,7 @@ export default function App() {
                 <Route path="/search" element={<SearchResults />} />
                 <Route path="/books/:bookId" element={<BookDetails />} />
                 <Route path="/my-books" element={<MyBooks />} />
+                <Route path="/ai-recommendations" element={<AIRecommendations />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<Signup />} />
                 <Route path="*" element={<Home />} />
