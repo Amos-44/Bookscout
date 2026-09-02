@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Sparkles, ArrowRight, BookHeart } from 'lucide-react';
+import { Sparkles, ArrowRight, BookHeart, Loader2 } from 'lucide-react';
 import { AuthContext } from '../context/AuthContext';
 
 // Pull the dynamic API URL from environment variables
@@ -11,12 +11,15 @@ export default function Signup() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (loading) return;
     setError('');
+    setLoading(true);
 
     try {
       const res = await fetch(`${API_URL}/api/register`, {
@@ -36,6 +39,8 @@ export default function Signup() {
       navigate('/');
     } catch (err) {
       setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -124,10 +129,30 @@ export default function Signup() {
                 />
               </div>
 
-              <button type="submit" className="btn-primary w-full gap-2 px-5 py-3 text-base">
-                Create account
-                <ArrowRight className="h-4 w-4" />
+              <button
+                type="submit"
+                disabled={loading}
+                aria-busy={loading}
+                className="btn-primary w-full gap-2 px-5 py-3 text-base disabled:cursor-wait disabled:opacity-80"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Creating account...
+                  </>
+                ) : (
+                  <>
+                    Create account
+                    <ArrowRight className="h-4 w-4" />
+                  </>
+                )}
               </button>
+              {loading && (
+                <p className="flex items-center justify-center gap-2 text-center text-xs font-medium text-stone-500" role="status">
+                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#9b5d43]" />
+                  Setting up your reading space...
+                </p>
+              )}
             </form>
 
             <p className="mt-6 text-center text-sm text-stone-600">

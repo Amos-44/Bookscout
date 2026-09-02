@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Sparkles, ArrowRight, BookOpenText } from 'lucide-react';
+import { Sparkles, ArrowRight, BookOpenText, Loader2 } from 'lucide-react';
 import { AuthContext } from '../context/AuthContext';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
@@ -9,12 +9,15 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (loading) return;
     setError('');
+    setLoading(true);
 
     try {
       const res = await fetch(`${API_URL}/api/login`, {
@@ -33,6 +36,8 @@ export default function Login() {
       navigate('/'); // Redirect to Home / My Books
     } catch (err) {
       setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -106,10 +111,30 @@ export default function Login() {
                 />
               </div>
 
-              <button type="submit" className="btn-primary w-full gap-2 px-5 py-3 text-base">
-                Log In
-                <ArrowRight className="h-4 w-4" />
+              <button
+                type="submit"
+                disabled={loading}
+                aria-busy={loading}
+                className="btn-primary w-full gap-2 px-5 py-3 text-base disabled:cursor-wait disabled:opacity-80"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Signing in...
+                  </>
+                ) : (
+                  <>
+                    Log In
+                    <ArrowRight className="h-4 w-4" />
+                  </>
+                )}
               </button>
+              {loading && (
+                <p className="flex items-center justify-center gap-2 text-center text-xs font-medium text-stone-500" role="status">
+                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#9b5d43]" />
+                  Checking your account...
+                </p>
+              )}
             </form>
 
             <p className="mt-6 text-center text-sm text-stone-600">
