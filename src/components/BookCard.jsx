@@ -1,15 +1,23 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Bookmark, Star, BookOpen } from 'lucide-react';
 import { useBookContext } from '../context/BookContext';
+import { useAuth } from '../context/AuthContext';
 
 export default function BookCard({ book }) {
   const { isBookSaved, addBook, removeBook } = useBookContext();
+  const { token } = useAuth();
+  const navigate = useNavigate();
   const isSaved = isBookSaved(book.id);
 
   const handleBookmarkClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
+    if (!token) {
+      window.alert('Please log in first to add books to your library.');
+      navigate('/login');
+      return;
+    }
     if (isSaved) removeBook(book.id);
     else addBook(book);
   };

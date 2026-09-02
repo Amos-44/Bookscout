@@ -185,10 +185,7 @@
 
 @layer utilities {
   .gradient-text {
-    background: linear-gradient(90deg, #3d312b 0%, #857967 28%, #d6785a 70%, #d9b15c 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
+    color: #5c4338;
   }
 
   .line-clamp-2 {

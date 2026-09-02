@@ -17,12 +17,12 @@ export default function Navbar() {
   const navLinkStyle = ({ isActive }) =>
     `flex items-center gap-2 rounded-full px-2.5 py-1.5 text-[0.92rem] sm:text-[1rem] font-semibold tracking-[0.04em] transition-all duration-150 ${
       isActive
-        ? 'bg-white/25 text-brand-accent shadow-sm ring-1 ring-brand-accent/20'
-        : 'text-stone-700 hover:bg-white/20 hover:text-stone-900'
+        ? 'bg-white text-brand-800 shadow-sm ring-1 ring-brand-200'
+        : 'text-brand-700 hover:bg-white/80 hover:text-brand-800'
     }`;
 
   return (
-    <header className="sticky top-0 z-50 border-b border-stone-200/80 bg-[#857967]/90 backdrop-blur-md">
+    <header className="sticky top-0 z-50 border-b border-brand-200/80 bg-[#f7f0ea]/95 backdrop-blur-md">
       <div className="mx-auto max-w-7xl px-3 py-3 sm:px-4 lg:px-8">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex items-center justify-between gap-3">
@@ -72,12 +72,12 @@ export default function Navbar() {
           <div className="flex items-center justify-center gap-2 sm:gap-3 lg:justify-end">
             {user ? (
               <>
-                <span className="font-serif text-[1rem] text-stone-700 sm:text-[1.2rem]">
+                <span className="font-serif text-[1rem] text-brand-700 sm:text-[1.2rem]">
                   Welcome, <span className="font-semibold text-brand-800">{user.username}</span>
                 </span>
                 <button
                   onClick={handleLogout}
-                  className="rounded-lg px-3 py-2 font-serif text-[0.98rem] text-stone-700 transition-colors hover:bg-stone-100 hover:text-stone-900 sm:text-[1.15rem]"
+                  className="rounded-lg px-3 py-2 font-serif text-[0.98rem] text-brand-700 transition-colors hover:bg-white hover:text-brand-800 sm:text-[1.15rem]"
                 >
                   Logout
                 </button>
@@ -86,7 +86,7 @@ export default function Navbar() {
               <>
                 <Link
                   to="/login"
-                  className="rounded-lg px-3 py-2 font-serif text-[0.98rem] text-stone-700 transition-colors hover:bg-stone-100 hover:text-stone-900 sm:text-[1.15rem]"
+                  className="rounded-lg px-3 py-2 font-serif text-[0.98rem] text-brand-700 transition-colors hover:bg-white hover:text-brand-800 sm:text-[1.15rem]"
                 >
                   Login
                 </Link>

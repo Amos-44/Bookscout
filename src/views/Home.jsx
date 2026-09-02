@@ -16,7 +16,7 @@ export default function Discover() {
   const [pointer, setPointer] = useState({ x: 50, y: 50 });
   const controllerRef = React.useRef(null);
 
-  const PAGE_SIZE = 10;
+  const PAGE_SIZE = 12;
 
   useEffect(() => {
     // Cancel any prior controller and create a new one for this category load
@@ -172,7 +172,7 @@ export default function Discover() {
       </div>
 
       {/* Book Grid */}
-      <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5">
+      <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4">
         {books.map((book) => (
           <BookCard key={book.id} book={book} />
         ))}

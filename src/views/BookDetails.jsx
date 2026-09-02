@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { getBookDetails } from '../services/bookApi';
 import { useBookContext } from '../context/BookContext';
+import { useAuth } from '../context/AuthContext';
 import LoadingSkeleton from '../components/LoadingSkeleton';
 import ErrorState from '../components/ErrorState';
 import StarRating from '../components/StarRating';
@@ -20,6 +21,7 @@ export default function BookDetails() {
   const { bookId } = useParams();
   const navigate = useNavigate();
   const { getSavedBook, addBook, updateBookStatus, updatePersonalRating, removeBook } = useBookContext();
+  const { token } = useAuth();
   const [book, setBook] = React.useState(null);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState(null);
@@ -127,7 +129,14 @@ export default function BookDetails() {
           <div className="w-full max-w-xs mt-6 space-y-3">
             {!saved ? (
               <button
-                onClick={() => addBook(book, 'want-to-read')}
+                onClick={() => {
+                  if (!token) {
+                    window.alert('Please log in first to add books to your library.');
+                    navigate('/login');
+                    return;
+                  }
+                  addBook(book, 'want-to-read');
+                }}
                 className="btn-primary w-full flex items-center justify-center space-x-2"
               >
                 <Bookmark className="w-4 h-4" />

@@ -2,7 +2,7 @@ import React from 'react';
 
 export default function LoadingSkeleton({ count = 10 }) {
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 gap-6 my-8">
+    <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 my-8">
       {Array.from({ length: count }).map((_, index) => (
         <div
           key={index}
